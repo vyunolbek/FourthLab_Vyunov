@@ -1,262 +1,134 @@
 #pragma once
-#include "Header.h"
 #include <iostream>
+#include "Vector.h"
 
 using namespace std;
 
-template<class T>
-class TMatrix : public TVector<TVector<T>>
+template<typename T>
+class TMatrix : public TVector<T>
 {
-protected:
-	int width = 0;
-	T** matr;
+	size_t width = 0;
+	size_t height = 0;
 public:
-	TMatrix();
-	TMatrix(int n);
-	TMatrix(int w, int l);
-	TMatrix(const TMatrix<T>& p);
-	TMatrix(int l, int w, T** arr);
-	~TMatrix();
+	TMatrix() : TVector<T>() {}
+	TMatrix(size_t w, size_t h) : TVector<T>(w* h), width(w), height(h) {}
+	TMatrix(const TMatrix<T>& p) { *this = p; }
+	~TMatrix() {}
 
-	void SetM(int i, int j, T value);
-	void SetI(int index1, int index2, T t);
-	int GetL();
+	size_t getWidth() const { return width; }
+	size_t getHeight() const { return height; }
 
-	bool operator == (const TMatrix<T>& p);
-	bool operator != (const TMatrix<T>& p);
+	bool operator == (const TMatrix<T>& p) const;
+	bool operator != (const TMatrix<T>& p) const { return !(*this == p); }
 
-	TMatrix<T> operator = (const TMatrix<T>& p);
-	TMatrix<T> operator + (const TMatrix<T>& p);
-	TMatrix<T> operator - (const TMatrix<T>& p);
+	TMatrix<T>& operator = (const TMatrix<T>& p);
+	TMatrix<T> operator + (const TMatrix<T>& p) const;
+	TMatrix<T> operator - (const TMatrix<T>& p) const;
 	TMatrix<T> operator += (const TMatrix<T>& p);
-	TMatrix<T> operator * (const TMatrix<T>& p);
-	T*& operator[](const int _n);
+	TMatrix<T> operator * (const TMatrix<T>& p) const;
+	TMatrix<T> operator / (const TMatrix<T>& p) const;
+	TVector<T> operator *(TVector<T>& vector) const;
+
+	TVector<T> operator[](const size_t i) const {
+		return TVector<T>(this->getData() + i * width, width);
+	}
+
 	template <class T>
 	friend ostream& operator<<(ostream& os, const TMatrix<T>& A);
 	template<class T>
 	friend istream& operator>>(istream& in, TMatrix<T>& mat);
 
-	void Print();
 };
 
 template<class T>
-inline TMatrix<T>::TMatrix()
+inline bool TMatrix<T>::operator==(const TMatrix<T>& p) const
 {
-	this->len = 2;
-	width = 2;
-	matr = new T*[len];
-	for (int i = 0; i < len; i++)
-		matr[i] = new T[width];
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < len; j++)
-			matr[i][j] = 0;
-}
-
-template<class T>
-inline TMatrix<T>::TMatrix(int n)
-{
-	len = width = n;
-	matr = new T*[len];
-	for (int i = 0; i < len; i++)
-		matr[i] = new T[width];
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < len; j++)
-			matr[i][j] = 0;
-}
-
-template<class T>
-inline TMatrix<T>::TMatrix(int w, int l)
-{
-	width = w;
-	len = l;
-	matr = new T*[len];
-	for (int i = 0; i < len; i++)
-		matr[i] = new T[width];
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < len; j++)
-			matr[i][j] = 0;
-}
-
-template<class T>
-inline TMatrix<T>::TMatrix(const TMatrix<T>& p)
-{
-	len = p.len;
-	width = p.width;
-	matr = new T*[len];
-	for (int k = 0; k < len; k++) matr[k] = new T[width];
-	if (p.len > 0 && p.width > 0)
-	{
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < len; j++)
-				matr[i][j] = p.matr[i][j];
+	if (p.width != width || p.height != height) {
+		return false;
 	}
+	return *(static_cast<TVector<T>*>(this)) == *(static_cast<TVector<T>*>(&p));
 }
 
 template<class T>
-inline TMatrix<T>::TMatrix(int l, int w, T** arr)
+inline TMatrix<T>& TMatrix<T>::operator=(const TMatrix<T>& p)
 {
-	width = w;
-	len = l;
-	matr = new T * [len];
-	for (int i = 0; i < len; i++) matr[i] = new T[width];
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < len; j++)
-			matr[i][j] = arr[i][j];
-}
-
-template<class T>
-inline TMatrix<T>::~TMatrix()
-{
-	width = 0;
-	len = 0;
-	delete[] matr;
-}
-
-template<class T>
-inline void TMatrix<T>::SetM(int i, int j, T value)
-{
-	if ((width >= i) && (len >= j) && (i >= 0) && (j >= 0))
-		matr[i][j] = value;
-}
-
-template<class T>
-inline void TMatrix<T>::SetI(int index1, int index2, T t)
-{
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < len; j++)
-			if (i == index1 && j == index2)
-				matr[i][j] = t;
-}
-
-template<class T>
-inline int TMatrix<T>::GetL()
-{
-	return width;
-}
-
-template<class T>
-inline bool TMatrix<T>::operator==(const TMatrix<T>& p)
-{
-	if (p.len == len || width == p.width)
-	{
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < len; j++)
-			{
-				if (matr[i][j] != p.matr[i][j])
-				{
-					return false;
-					break;
-				}
-				break;
-			}
-	}
-	else return false;
-	return true;
-}
-
-template<class T>
-inline bool TMatrix<T>::operator!=(const TMatrix<T>& p)
-{
-	return !(*this == p);
-}
-
-template<class T>
-inline TMatrix<T> TMatrix<T>::operator=(const TMatrix<T>& p)
-{
-	for (int i = 0; i < len; i++)
-		delete[] matr[i];
-	delete[] matr;
+	if (this == &p)
+		return *this;
 	width = p.width;
-	len = p.len;
-	matr = new T * [len];
-	for (int i = 0; i < len; i++) matr[i] = new T[width];
-	for (int i = 0; i < width; i++)
-		for (int j = 0; j < len; j++)
-		{
-			matr[i][j] = p.matr[i][j];
-		}
+	height = p.height;
+	*(static_cast<TVector<T>*>(this)) = *(static_cast<const TVector<T>*>(&p));
 	return *this;
 }
 
 template<class T>
-inline TMatrix<T> TMatrix<T>::operator+(const TMatrix<T>& p)
+inline TMatrix<T> TMatrix<T>::operator+(const TMatrix<T>& p) const
 {
-	TMatrix<T> result;
-	result.len = len;
-	result.width = width;
-	result.matr = new T * [len];
-	for (int i = 0; i < len; i++) result.matr[i] = new T[width];
-	if (len == p.len && width == p.width)
-	{
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < len; j++)
-			{
-				result.matr[i][j] = matr[i][j] + p.matr[i][j];
-			}
-	}
-	else throw "Error";
+	if (getWidth() != p.getWidth() || getHeight() != p.getHeight())
+		throw runtime_error("Shape of summarized matrices must be the same");
+	TMatrix<T> result(getWidth(), getHeight());
+	*(static_cast<TVector<T>*>(&result)) = *(static_cast<const TVector<T>*>(this)) + *(static_cast<const TVector<T>*>(&p));
 	return result;
 }
 
 template<class T>
-inline TMatrix<T> TMatrix<T>::operator-(const TMatrix<T>& p)
+inline TMatrix<T> TMatrix<T>::operator-(const TMatrix<T>& p) const
 {
-	TMatrix<T> result;
-	result.len = len;
-	result.width = width;
-	result.matr = new T * [len];
-	for (int i = 0; i < len; i++) result.matr[i] = new T[width];
-	if (len == p.len && width == p.width)
-	{
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < len; j++)
-			{
-				result.matr[i][j] = matr[i][j] - p.matr[i][j];
-			}
-	}
-	else throw "Error";
+	if (getWidth() != p.getWidth() || getHeight() != p.getHeight())
+		throw runtime_error("Shape of subtracted matrices must be the same");
+	TMatrix<T> result(getWidth(), getHeight());
+	*(static_cast<TVector<T>*>(&result)) = *(static_cast<const TVector<T>*>(this)) - *(static_cast<const TVector<T>*>(&p));
 	return result;
 }
 
 template<class T>
 inline TMatrix<T> TMatrix<T>::operator+=(const TMatrix<T>& p)
 {
-	TMatrix<T> result(p);
-	*this = *this + result;
+	*this = *this + p;
+	return *this;
+}
+
+template<class T>
+inline TMatrix<T> TMatrix<T>::operator*(const TMatrix<T>& p) const
+{
+	if (getWidth() == p.getHeight())
+	{
+		TMatrix<T> result(getHeight(), p.getWidth());
+		for (int i = 0; i < result.width; i++)
+			for (int j = 0; j < result.height; j++)
+			{
+				result[i][j] = 0;
+				for (int k = 0; k < height; k++)
+					result[i][j] = result[i][j] + ((*this)[i][j] * p[i][j]);
+			}
+		return result;
+	}
+	else
+		throw runtime_error("Shape of multiplied matrices must be the same");
+}
+
+template<typename T>
+inline TMatrix<T> TMatrix<T>::operator/(const TMatrix<T>& p) const
+{
+	if (getWidth() != p.getWidth() || getHeight() != p.getHeight())
+		throw runtime_error("Shape of divided matrices must be the same");
+	TMatrix<T> result(getWidth(), getHeight());
+	*(static_cast<TVector<T>*>(&result)) = *(static_cast<const TVector<T>*>(this)) / *(static_cast<const TVector<T>*>(&p));
 	return result;
 }
 
-template<class T>
-inline TMatrix<T> TMatrix<T>::operator*(const TMatrix<T>& p)
+template<typename T>
+inline TVector<T> TMatrix<T>::operator*(TVector<T>& vector) const
 {
-	TMatrix<T> result(p.width);
-	if (width == p.len && len == p.width)
+	if (getWidth() != vector.size())
 	{
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < len; j++)
-				for (int k = 0; k < this->len; k++)
-				{
-					result.matr[i][j] += (matr[i][k] * p.matr[k][j]);
-				}
+		throw - 1;
 	}
+	TVector<T> result(vector.size());
+	for (int i = 0; i < vector.size(); i++)
+		for (int j = 0; j < getWidth(); j++)
+			for (int k = 0; k < vector.size(); k++)
+				result[i] += (*this)[i][k] * vector[k];
 	return result;
-}
-
-template<class T>
-inline T*& TMatrix<T>::operator[](const int _n)
-{
-	return matr[_n];
-}
-
-template<class T>
-inline void TMatrix<T>::Print()
-{
-	for (int i = 0; i < width; i++)
-	{
-		for (int j = 0; j < len; j++)
-			cout << matr[i][j] << " ";
-		cout << endl;
-	}
 }
 
 template<class T>
@@ -264,47 +136,26 @@ inline ostream& operator<<(ostream& B, const TMatrix<T>& A)
 {
 	for (int i = 0; i < A.width; i++)
 	{
-		for (int j = 0; j < A.len; j++)
-			B << A.matr[i][j] << " ";
+		for (int j = 0; j < A.height; j++)
+			B << A[i][j] << " ";
 		cout << endl;
 	}
-		return B;
+	return B;
 }
 
 template<class T>
 inline istream& operator>>(istream& in, TMatrix<T>& mat)
 {
-	for (int i = 0; i < mat.width; i++)
-		delete[] mat.matr[i];
-	delete[] mat.matr;
-
-	cout << "Enter size" << endl << "width = ";
+	cout << "Enter width: ";
 	in >> mat.width;
-	cout << "long = ";
-	in >> mat.len;
-	T** temp;
-	temp = new T * [mat.width];
+	cout << "Enter height: ";
+	in >> mat.height;
+	TMatrix<T> temp(mat.height, mat.width);
 	for (int i = 0; i < mat.width; i++)
-		temp[i] = new T[mat.len];
-
-
-	for (int i = 0; i < mat.width; i++)
-	{
-		cout << "Enter " << i + 1 << " line" << endl;
-		for (int j = 0; j < mat.len; j++)
+		for (int j = 0; j < mat.height; j++)
 			in >> temp[i][j];
-	}
-
-	mat.matr = new T * [mat.width];
-	for (int i = 0; i < mat.width; i++)
-		mat.matr[i] = new T[mat.len];
-
-	for (int i = 0; i < mat.width; i++)
-		for (int j = 0; j < mat.len; j++)
-			mat.SetM(i, j, temp[i][j]);
-
-	for (int i = 0; i < mat.width; i++)
-		delete[] temp[i];
-	delete[] temp;
+	mat = temp;
 	return in;
 }
+
+

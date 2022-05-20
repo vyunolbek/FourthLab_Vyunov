@@ -1,60 +1,69 @@
 #include <iostream>
-#include"../headers/Header.h"
 #include "../headers/Matrix.h"
+#include "../headers/Vector.h"
 #include "../headers/Multi.h"
+#include <time.h>
 
 using namespace std;
 
 int main()
 {
-	int* arr;
-	arr = new int[3];
-	for (int i = 0; i < 3; i++) arr[i] = i;
-	int** arrm;
-	arrm = new int* [3];
-	for (int i = 0; i < 3; i++) arrm[i] = new int[3];
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
-			arrm[i][j] = i;
-	TVector<int> V1;
-	TVector<int> V2(3);
-	TVector<int> V3(V2);
-	TVector<int> V4(3, arr);
-	TVector<int> V5;
-	V5 = V4;
-	cout << V5 << endl;
-	V5 = V4 + V3;
-	cout << V5 << endl;
-	V5 = V4 - V3;
-	cout << V5 << endl;
-	V5 += V4;
-	cout << V5 << endl;
-	V5 = V4 / V2;
-	cout << V5 << endl;
-	V5 = V4 * V4;
-	cout << V5 << endl;
-	cout << V5[2] << endl;
-	TMatrix<int> M1;
-	TMatrix<int> M2(3);
-	TMatrix<int> M3(3, 3);
-	TMatrix<int> M4(M3);
-	TMatrix<int> M5(3, 3, arrm);
-	M1 = M5;
-	cout << M1 << endl;
-	M1 = M5 + M5;
-	cout << M1 << endl;
-	M1 = M5 - M5;
-	cout << M1 << endl;
-	M1 += M5;
-	cout << M1 << endl;
-	M1 = M5 * M5;
-	cout << M1 << endl;
-	cout << M1[2][2] << endl;
-
-	V1 = M1 * V5;
-	cout << V1 << endl;
-	cout << V5 << "\n\n" << M1 << endl;
-	M1 = V5 * M1;
-	cout << M1 << endl;
+	TVector<int> v1, v2, v3;
+	TMatrix<int> m1, m2, m3;
+	int n;
+	cout << "Change operations:" << endl << "1. v + v" << endl <<
+		"2. v - v" << endl << "3. v * v" << endl << "4. v / v" << endl << "5. m + m" << endl <<
+		"6. m - m" << endl << "7. m * m" << endl << "8. m * v" << endl << "9. v * m" << endl << "Enter: ";
+	cin >> n;
+	switch (n)
+	{
+	case (1):
+		cin >> v1;
+		cin >> v2;
+		cout << v1 + v2;
+		return 0;
+	case(2):
+		cin >> v1;
+		cin >> v2;
+		cout << v1 - v2;
+		return 0;
+	case(3):
+		cin >> v1;
+		cin >> v2;
+		cout << v1 * v2;
+		return 0;
+	case(4):
+		cin >> v1;
+		cin >> v2;
+		cout << v1 / v2;
+		return 0;
+	case(5):
+		cin >> m1;
+		cin >> m2;
+		cout << m1 + m2;
+		return 0;
+	case(6):
+		cin >> m1;
+		cin >> m2;
+		cout << m1 - m2;
+		return 0;
+	case(7):
+		cin >> m1;
+		cin >> m2;
+		cout << m1 * m2;
+		return 0;
+	case(8):
+		cin >> m1;
+		cin >> v2;
+		cout << m1 * v2;
+		return 0;
+	case(9):
+		cin >> v2;
+		cin >> m1;
+		cout << v2 * m1;
+		return 0;
+	default:
+		break;
+	}
 	return 0;
 }
